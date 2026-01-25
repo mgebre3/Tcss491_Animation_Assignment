@@ -2,50 +2,26 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>Tcss491_Animation_Assignment</title>
+  <title>Animation Assignment — Tennis</title>
   <style>
     body { text-align:center; font-family: Arial, sans-serif; margin:0; padding:16px; }
     canvas { border:2px solid #333; display:block; margin:12px auto; }
-    .panel { max-width: 860px; margin: 0 auto; }
     .hint { font-size:14px; color:#444; margin: 6px 0 10px; }
-    .controls { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; user-select:none; }
-    button { font-size:16px; padding:10px 14px; cursor:pointer; }
-    button:disabled { opacity:0.6; cursor:not-allowed; }
-    .small { font-size:13px; color:#666; margin-top:8px; }
   </style>
 </head>
 
 <body>
-  <div class="panel">
-    <h2>Animation Assignment — Tennis Demo</h2>
-
-    <div class="hint">
-      Player 1: <b>A</b>=Left, <b>D</b>=Right, <b>Space</b>=Hit |
-      Player 2: <b>J</b>=Left, <b>L</b>=Right, <b>I</b>=Hit
-    </div>
-
-    <canvas id="gameWorld" width="800" height="600"></canvas>
-
-    <div class="controls">
-      <button id="startBtn">▶ Start</button>
-      <button id="pauseBtn" disabled>⏸ Pause</button>
-      <button id="resetBtn" disabled>⟲ Reset</button>
-
-      <span style="width:18px;"></span>
-
-      <button id="leftBtn">⬅ P1 Left</button>
-      <button id="hitBtn">🏓 P1 Hit</button>
-      <button id="rightBtn">P1 Right ➡</button>
-    </div>
-
-    <div class="small">Tip: If keys don’t work, click once on the page and try again.</div>
-
-    <script src="gameengine.js"></script>
-    <script src="assetmanager.js"></script>
-    <script src="animator.js"></script>
-    <script src="player.js"></script>
-    <script src="ball.js"></script>
-    <script src="main.js"></script>
+  <h2>Animation Assignment — Tennis</h2>
+  <div class="hint">
+    Move: <b>Arrow Keys</b> or <b>W A S D</b>
   </div>
+
+  <canvas id="gameWorld" width="800" height="600"></canvas>
+
+  <script src="gameengine.js"></script>
+  <script src="assetmanager.js"></script>
+  <script src="animator.js"></script>
+  <script src="player.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>
