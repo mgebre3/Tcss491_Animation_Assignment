@@ -49,13 +49,35 @@ class GameEngine {
   }
 
   draw() {
-    const w = this.ctx.canvas.width;
-    const h = this.ctx.canvas.height;
+    const ctx = this.ctx;
+    const W = ctx.canvas.width;
+    const H = ctx.canvas.height;
 
-    // Always draw a visible background
-    this.ctx.fillStyle = "#eeeeee";
-    this.ctx.fillRect(0, 0, w, h);
+    // --- Background ---
+    ctx.fillStyle = "#e9e9e9";
+    ctx.fillRect(0, 0, W, H);
 
-    for (const e of this.entities) e.draw(this.ctx);
+    // --- Table tennis court lines ---
+    const margin = 30;
+
+    // Outer court rectangle
+    ctx.strokeStyle = "#222";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(margin, margin, W - margin * 2, H - margin * 2);
+
+    // Center line (horizontal, like table tennis net line)
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(margin, H / 2);
+    ctx.lineTo(W - margin, H / 2);
+    ctx.stroke();
+
+    // Optional: small center circle
+    ctx.beginPath();
+    ctx.arc(W / 2, H / 2, 16, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // --- Draw entities (players + ball) ---
+    for (const e of this.entities) e.draw(ctx);
   }
 }
