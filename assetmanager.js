@@ -9,10 +9,12 @@ class AssetManager {
   }
 
   downloadAll(callback) {
-    if (this.queue.length === 0) callback();
+    if (this.queue.length === 0) {
+      callback();
+      return;
+    }
 
     let loaded = 0;
-
     this.queue.forEach((path) => {
       const img = new Image();
       img.onload = () => {
@@ -20,9 +22,7 @@ class AssetManager {
         loaded++;
         if (loaded === this.queue.length) callback();
       };
-      img.onerror = () => {
-        console.error("Failed to load:", path);
-      };
+      img.onerror = () => console.error("Failed to load:", path);
       img.src = path;
     });
   }
