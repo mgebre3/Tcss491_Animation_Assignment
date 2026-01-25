@@ -4,24 +4,30 @@ class AssetManager {
     this.queue = [];
   }
 
-  queueDownload(p) {
-    this.queue.push(p);
+  queueDownload(path) {
+    this.queue.push(path);
   }
 
-  downloadAll(cb) {
+  downloadAll(callback) {
+    if (this.queue.length === 0) callback();
+
     let loaded = 0;
-    this.queue.forEach(p => {
+
+    this.queue.forEach((path) => {
       const img = new Image();
       img.onload = () => {
-        this.cache[p] = img;
+        this.cache[path] = img;
         loaded++;
-        if (loaded === this.queue.length) cb();
+        if (loaded === this.queue.length) callback();
       };
-      img.src = p;
+      img.onerror = () => {
+        console.error("Failed to load:", path);
+      };
+      img.src = path;
     });
   }
 
-  getAsset(p) {
-    return this.cache[p];
+  getAsset(path) {
+    return this.cache[path];
   }
 }
