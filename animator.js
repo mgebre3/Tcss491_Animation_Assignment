@@ -1,23 +1,24 @@
 class Animator {
-  constructor(sheet, w, h, frames, speed, row) {
+  constructor(sheet, frameW, frameH, frameCount, frameDuration, row) {
     this.sheet = sheet;
-    this.w = w;
-    this.h = h;
-    this.frames = frames;
-    this.speed = speed;
+    this.frameW = frameW;
+    this.frameH = frameH;
+    this.frameCount = frameCount;
+    this.frameDuration = frameDuration;
     this.row = row;
     this.time = 0;
   }
 
   drawFrame(tick, ctx, x, y, scale = 2) {
     this.time += tick;
-    const f = Math.floor(this.time / this.speed) % this.frames;
+    const frame = Math.floor(this.time / this.frameDuration) % this.frameCount;
+
     ctx.drawImage(
       this.sheet,
-      f * this.w, this.row * this.h,
-      this.w, this.h,
+      frame * this.frameW, this.row * this.frameH,
+      this.frameW, this.frameH,
       x, y,
-      this.w * scale, this.h * scale
+      this.frameW * scale, this.frameH * scale
     );
   }
 }
