@@ -8,33 +8,60 @@ ASSET_MANAGER.downloadAll(() => {
   const game = new GameEngine();
   game.init(ctx);
 
-  // Create player a bit higher so you can SEE it (scale=2 makes it tall)
-  game.addEntity(new Player(game, 360, 420, { left: "a", right: "d", hit: " " }));
+  // --- Constants (clean + easy to change) ---
+  const SCALE = 2;
+  const FRAME_W = 64;
+  const PLAYER_W = FRAME_W * SCALE;
+
+  // Center player horizontally
+  const startX = (canvas.width - PLAYER_W) / 2;
+  const startY = 420; // visible on screen for scale=2
+
+  // Create game objects
+  game.addEntity(new Player(game, startX, startY, { left: "a", right: "d", hit: " " }, SCALE));
   game.addEntity(new Ball(game, 400, 300));
 
-  // --- BUTTON CONTROLS (same keys as keyboard) ---
+  // --- Button Controls ---
   const leftBtn = document.getElementById("leftBtn");
   const rightBtn = document.getElementById("rightBtn");
+  const hitBtn = document.getElementById("hitBtn");
 
-  // Hold button = keep moving
-  const press = (key) => () => (game.keys[key] = true);
-  const release = (key) => () => (game.keys[key] = false);
+  // Helpers: press/release keys in the engine
+  const setKey = (key, isDown) => () => (game.keys[key] = isDown);
 
-  // Mouse support
-  leftBtn.addEventListener("mousedown", press("a"));
-  leftBtn.addEventListener("mouseup", release("a"));
-  leftBtn.addEventListener("mouseleave", release("a"));
+  // Mouse (hold to move)
+  leftBtn.addEventListener("mousedown", setKey("a", true));
+  leftBtn.addEventListener("mouseup", setKey("a", false));
+  leftBtn.addEventListener("mouseleave", setKey("a", false));
 
-  rightBtn.addEventListener("mousedown", press("d"));
-  rightBtn.addEventListener("mouseup", release("d"));
-  rightBtn.addEventListener("mouseleave", release("d"));
+  rightBtn.addEventListener("mousedown", setKey("d", true));
+  rightBtn.addEventListener("mouseup", setKey("d", false));
+  rightBtn.addEventListener("mouseleave", setKey("d", false));
 
-  // Touch support (phones/tablets)
-  leftBtn.addEventListener("touchstart", (e) => { e.preventDefault(); game.keys["a"] = true; }, { passive: false });
-  leftBtn.addEventListener("touchend", (e) => { e.preventDefault(); game.keys["a"] = false; }, { passive: false });
+  // Hit button (tap = quick hit)
+  hitBtn.addEventListener("click", () => {
+    game.keys[" "] = true;
+    setTimeout(() => (game.keys[" "] = false), 120);
+  });
 
-  rightBtn.addEventListener("touchstart", (e) => { e.preventDefault(); game.keys["d"] = true; }, { passive: false });
-  rightBtn.addEventListener("touchend", (e) => { e.preventDefault(); game.keys["d"] = false; }, { passive: false });
+  // Touch support (mobile)
+  const touchHold = (btn, key) => {
+    btn.addEventListener("touchstart", (e) => { e.preventDefault(); game.keys[key] = true; }, { passive: false });
+    btn.addEventListener("touchend", (e) => { e.preventDefault(); game.keys[key] = false; }, { passive: false });
+  };
+
+  touchHold(leftBtn, "a");
+  touchHold(rightBtn, "d");
+
+  hitBtn.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    game.keys[" "] = true;
+  }, { passive: false });
+
+  hitBtn.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    game.keys[" "] = false;
+  }, { passive: false });
 
   game.start();
 });
