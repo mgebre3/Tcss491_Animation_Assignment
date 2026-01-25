@@ -3,15 +3,14 @@ class GameEngine {
     this.entities = [];
     this.keys = {};
     this.clockTick = 0;
+    this.isPaused = true;
+    this.started = false;
   }
 
   init(ctx) {
     this.ctx = ctx;
-
-    // Good for pixel/sprite graphics (prevents blur)
     this.ctx.imageSmoothingEnabled = false;
 
-    // Keyboard input
     window.addEventListener("keydown", (e) => {
       this.keys[e.key.toLowerCase()] = true;
     });
@@ -28,6 +27,9 @@ class GameEngine {
   }
 
   start() {
+    if (this.started) return;
+    this.started = true;
+
     const loop = (t) => {
       this.clockTick = (t - this.last) / 1000;
       this.last = t;
@@ -42,21 +44,18 @@ class GameEngine {
   }
 
   update() {
-    for (const e of this.entities) {
-      e.update();
-    }
+    if (this.isPaused) return;
+    for (const e of this.entities) e.update();
   }
 
   draw() {
     const w = this.ctx.canvas.width;
     const h = this.ctx.canvas.height;
 
-    // Always draw a background so you know the canvas is working
+    // Always draw a visible background
     this.ctx.fillStyle = "#eeeeee";
     this.ctx.fillRect(0, 0, w, h);
 
-    for (const e of this.entities) {
-      e.draw(this.ctx);
-    }
+    for (const e of this.entities) e.draw(this.ctx);
   }
 }
