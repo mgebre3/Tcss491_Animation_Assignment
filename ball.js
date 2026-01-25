@@ -17,8 +17,9 @@ class Ball {
   }
 
   draw(ctx) {
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-    ctx.fill();
-  }
+  ctx.fillStyle = "black";   // ← ADD THIS LINE
+  ctx.beginPath();
+  ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+  ctx.fill();
 }
+
