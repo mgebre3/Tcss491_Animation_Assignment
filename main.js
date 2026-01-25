@@ -17,22 +17,40 @@ ASSET_MANAGER.downloadAll(() => {
   const P1_Y = 420; // bottom player
   const P2_Y = 60;  // top player
 
-  // Two players
+  // Players
   const p1 = new Player(game, centerX, P1_Y, { left: "a", right: "d", hit: " " }, SCALE);
   const p2 = new Player(game, centerX, P2_Y, { left: "j", right: "l", hit: "i" }, SCALE);
 
   // Ball
   const ball = new Ball(game, canvas.width / 2, canvas.height / 2);
 
-  // Start paused
+  // Server: Player 1 starts
+  let server = p1;
+
+  // When someone misses:
+  // if p1 missed => server becomes p2
+  // if p2 missed => server becomes p1
+  ball.onMiss = (whoMissed) => {
+    game.isPaused = true;
+    ball.active = false;
+
+    server = (whoMissed === "p1") ? p2 : p1;
+    ball.serveFrom(server);
+
+    // show the new serve position
+    game.draw();
+  };
+
+  // Initial state: paused, ball sitting at Player 1 serve position
   game.isPaused = true;
   ball.active = false;
+  ball.serveFrom(server);
 
   game.addEntity(p1);
   game.addEntity(p2);
   game.addEntity(ball);
 
-  // Draw first frame (so you see something before starting)
+  // Draw first frame
   game.draw();
 
   // Buttons
@@ -72,7 +90,7 @@ ASSET_MANAGER.downloadAll(() => {
   holdKey(rightBtn, "d");
   tapKey(hitBtn, " ", 120);
 
-  // START
+  // START (serve + run)
   startBtn.addEventListener("click", () => {
     game.isPaused = false;
     ball.active = true;
@@ -91,18 +109,21 @@ ASSET_MANAGER.downloadAll(() => {
     pauseBtn.textContent = game.isPaused ? "▶ Resume" : "⏸ Pause";
   });
 
-  // RESET
+  // RESET (Player 1 serves again)
   resetBtn.addEventListener("click", () => {
     game.isPaused = true;
     ball.active = false;
 
-    // Clear keys
+    // clear keys
     ["a", "d", " ", "j", "l", "i"].forEach(k => game.keys[k] = false);
 
-    // Reset positions
+    // reset players
     p1.x = centerX; p1.y = P1_Y;
     p2.x = centerX; p2.y = P2_Y;
-    ball.reset(canvas.width / 2, canvas.height / 2);
+
+    // reset server to Player 1
+    server = p1;
+    ball.serveFrom(server);
 
     pauseBtn.textContent = "⏸ Pause";
     game.draw();
