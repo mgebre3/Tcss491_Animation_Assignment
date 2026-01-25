@@ -22,13 +22,22 @@ class Player {
     this.idle = new Animator(this.sheet, 64, 64, 4, 0.20, 0);
     this.run  = new Animator(this.sheet, 64, 64, 6, 0.10, 1);
 
-    // Hit animation (for now reuses idle row; still works)
+    // Hit animation (reuses idle row; still works)
     this.hit  = new Animator(this.sheet, 64, 64, 4, 0.08, 0);
+
+    // Racket hitbox (updated every draw)
+    this.racketRect = { x: 0, y: 0, w: 6, h: 22 };
   }
 
+  // Body hitbox (not used for ball now, but still useful)
   getRect() {
     const size = 64 * this.scale;
     return { x: this.x, y: this.y, w: size, h: size };
+  }
+
+  // Racket hitbox (used for collision)
+  getRacketRect() {
+    return this.racketRect;
   }
 
   update() {
@@ -74,35 +83,39 @@ class Player {
       this.idle.drawFrame(this.game.clockTick, ctx, this.x, this.y, this.scale);
     }
 
-    // Draw racket on top of player
+    // Always draw racket (always held)
     this.drawRacket(ctx);
   }
 
-  // Simple racket drawing (so player “holds” it)
+  // Draw racket + update racket hitbox each frame
   drawRacket(ctx) {
     const s = this.scale;
     const bodyW = 64 * s;
 
-    // Default: racket on the right side
-    // Player 2 (top) can have racket on the left for variety
+    // Put P2 racket on left, P1 racket on right (looks nice)
     const isTopPlayer = this.y < this.game.ctx.canvas.height / 2;
 
-    const racketX = isTopPlayer ? this.x + 6 : this.x + bodyW - 12;
-    const racketY = this.y + 30 * s;
+    // RACKET HANDLE rectangle hitbox (used for collision)
+    this.racketRect = {
+      x: isTopPlayer ? this.x + 6 : this.x + bodyW - 12,
+      y: this.y + 30 * s,
+      w: 10,          // wider = easier to hit
+      h: 28
+    };
 
     // Handle
-    ctx.fillStyle = "#8b5a2b"; // brown
-    ctx.fillRect(racketX, racketY, 6, 22);
+    ctx.fillStyle = "#8b5a2b";
+    ctx.fillRect(this.racketRect.x, this.racketRect.y, this.racketRect.w, this.racketRect.h);
 
-    // Head
+    // Head (visual only)
     ctx.strokeStyle = "#222";
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.ellipse(
-      racketX + 3,
-      racketY - 6,
-      10,
-      14,
+      this.racketRect.x + this.racketRect.w / 2,
+      this.racketRect.y - 6,
+      12,
+      16,
       0,
       0,
       Math.PI * 2
