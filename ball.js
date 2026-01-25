@@ -12,14 +12,31 @@ class Ball {
     this.x += this.vx * this.game.clockTick;
     this.y += this.vy * this.game.clockTick;
 
-    if (this.x < this.r || this.x > 800 - this.r) this.vx *= -1;
-    if (this.y < this.r || this.y > 600 - this.r) this.vy *= -1;
+    // bounce left/right
+    if (this.x < this.r) {
+      this.x = this.r;
+      this.vx *= -1;
+    }
+    if (this.x > 800 - this.r) {
+      this.x = 800 - this.r;
+      this.vx *= -1;
+    }
+
+    // bounce top/bottom
+    if (this.y < this.r) {
+      this.y = this.r;
+      this.vy *= -1;
+    }
+    if (this.y > 600 - this.r) {
+      this.y = 600 - this.r;
+      this.vy *= -1;
+    }
   }
 
   draw(ctx) {
-  ctx.fillStyle = "black";   // ← ADD THIS LINE
-  ctx.beginPath();
-  ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-  ctx.fill();
+    ctx.fillStyle = "black";
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
 }
-
