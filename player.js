@@ -13,7 +13,7 @@ class Player {
     this.hitTimer = 0;
     this.hitDuration = 0.25;
 
-    // Must exist in your repo: assets/player.png
+    // Sprite must be here: assets/player.png
     this.sheet = ASSET_MANAGER.getAsset("./assets/player.png");
 
     // Sprite layout:
@@ -22,8 +22,7 @@ class Player {
     this.idle = new Animator(this.sheet, 64, 64, 4, 0.20, 0);
     this.run  = new Animator(this.sheet, 64, 64, 6, 0.10, 1);
 
-    // Hit animation: if you later add a hit row, set row=2 here.
-    // For now, we reuse idle frames (still works).
+    // Hit animation (for now reuses idle row; still works)
     this.hit  = new Animator(this.sheet, 64, 64, 4, 0.08, 0);
   }
 
@@ -49,7 +48,7 @@ class Player {
       this.moving = true;
     }
 
-    // Hit key (space or "i")
+    // Hit input
     if (k[this.controls.hit] && !this.isHitting) {
       this.isHitting = true;
       this.hitTimer = 0;
@@ -60,12 +59,13 @@ class Player {
       if (this.hitTimer > this.hitDuration) this.isHitting = false;
     }
 
-    // Keep on screen
+    // Keep player on screen
     const maxX = this.game.ctx.canvas.width - (64 * this.scale);
     this.x = clamp(this.x, 0, maxX);
   }
 
   draw(ctx) {
+    // Draw sprite
     if (this.isHitting) {
       this.hit.drawFrame(this.game.clockTick, ctx, this.x, this.y, this.scale);
     } else if (this.moving) {
@@ -73,10 +73,45 @@ class Player {
     } else {
       this.idle.drawFrame(this.game.clockTick, ctx, this.x, this.y, this.scale);
     }
+
+    // Draw racket on top of player
+    this.drawRacket(ctx);
+  }
+
+  // Simple racket drawing (so player “holds” it)
+  drawRacket(ctx) {
+    const s = this.scale;
+    const bodyW = 64 * s;
+
+    // Default: racket on the right side
+    // Player 2 (top) can have racket on the left for variety
+    const isTopPlayer = this.y < this.game.ctx.canvas.height / 2;
+
+    const racketX = isTopPlayer ? this.x + 6 : this.x + bodyW - 12;
+    const racketY = this.y + 30 * s;
+
+    // Handle
+    ctx.fillStyle = "#8b5a2b"; // brown
+    ctx.fillRect(racketX, racketY, 6, 22);
+
+    // Head
+    ctx.strokeStyle = "#222";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(
+      racketX + 3,
+      racketY - 6,
+      10,
+      14,
+      0,
+      0,
+      Math.PI * 2
+    );
+    ctx.stroke();
   }
 }
 
-// Helper used by Player
+// Helper
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
