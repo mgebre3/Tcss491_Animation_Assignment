@@ -8,60 +8,103 @@ ASSET_MANAGER.downloadAll(() => {
   const game = new GameEngine();
   game.init(ctx);
 
-  // --- Constants (clean + easy to change) ---
+  // Layout constants
   const SCALE = 2;
   const FRAME_W = 64;
   const PLAYER_W = FRAME_W * SCALE;
+  const centerX = (canvas.width - PLAYER_W) / 2;
 
-  // Center player horizontally
-  const startX = (canvas.width - PLAYER_W) / 2;
-  const startY = 420; // visible on screen for scale=2
+  const P1_Y = 420; // bottom player
+  const P2_Y = 60;  // top player
 
-  // Create game objects
-  game.addEntity(new Player(game, startX, startY, { left: "a", right: "d", hit: " " }, SCALE));
-  game.addEntity(new Ball(game, 400, 300));
+  // Two players
+  const p1 = new Player(game, centerX, P1_Y, { left: "a", right: "d", hit: " " }, SCALE);
+  const p2 = new Player(game, centerX, P2_Y, { left: "j", right: "l", hit: "i" }, SCALE);
 
-  // --- Button Controls ---
+  // Ball
+  const ball = new Ball(game, canvas.width / 2, canvas.height / 2);
+
+  // Start paused
+  game.isPaused = true;
+  ball.active = false;
+
+  game.addEntity(p1);
+  game.addEntity(p2);
+  game.addEntity(ball);
+
+  // Draw first frame (so you see something before starting)
+  game.draw();
+
+  // Buttons
+  const startBtn = document.getElementById("startBtn");
+  const pauseBtn = document.getElementById("pauseBtn");
+  const resetBtn = document.getElementById("resetBtn");
+
   const leftBtn = document.getElementById("leftBtn");
   const rightBtn = document.getElementById("rightBtn");
   const hitBtn = document.getElementById("hitBtn");
 
-  // Helpers: press/release keys in the engine
-  const setKey = (key, isDown) => () => (game.keys[key] = isDown);
+  // Helpers for button controls
+  const holdKey = (btn, key) => {
+    const down = (e) => { e.preventDefault(); game.keys[key] = true; };
+    const up   = (e) => { e.preventDefault(); game.keys[key] = false; };
 
-  // Mouse (hold to move)
-  leftBtn.addEventListener("mousedown", setKey("a", true));
-  leftBtn.addEventListener("mouseup", setKey("a", false));
-  leftBtn.addEventListener("mouseleave", setKey("a", false));
+    btn.addEventListener("mousedown", down);
+    btn.addEventListener("mouseup", up);
+    btn.addEventListener("mouseleave", up);
 
-  rightBtn.addEventListener("mousedown", setKey("d", true));
-  rightBtn.addEventListener("mouseup", setKey("d", false));
-  rightBtn.addEventListener("mouseleave", setKey("d", false));
-
-  // Hit button (tap = quick hit)
-  hitBtn.addEventListener("click", () => {
-    game.keys[" "] = true;
-    setTimeout(() => (game.keys[" "] = false), 120);
-  });
-
-  // Touch support (mobile)
-  const touchHold = (btn, key) => {
-    btn.addEventListener("touchstart", (e) => { e.preventDefault(); game.keys[key] = true; }, { passive: false });
-    btn.addEventListener("touchend", (e) => { e.preventDefault(); game.keys[key] = false; }, { passive: false });
+    btn.addEventListener("touchstart", down, { passive: false });
+    btn.addEventListener("touchend", up, { passive: false });
   };
 
-  touchHold(leftBtn, "a");
-  touchHold(rightBtn, "d");
+  const tapKey = (btn, key, ms = 120) => {
+    const tap = (e) => {
+      e.preventDefault();
+      game.keys[key] = true;
+      setTimeout(() => (game.keys[key] = false), ms);
+    };
+    btn.addEventListener("click", tap);
+    btn.addEventListener("touchstart", tap, { passive: false });
+  };
 
-  hitBtn.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    game.keys[" "] = true;
-  }, { passive: false });
+  // P1 buttons (A/D/Space)
+  holdKey(leftBtn, "a");
+  holdKey(rightBtn, "d");
+  tapKey(hitBtn, " ", 120);
 
-  hitBtn.addEventListener("touchend", (e) => {
-    e.preventDefault();
-    game.keys[" "] = false;
-  }, { passive: false });
+  // START
+  startBtn.addEventListener("click", () => {
+    game.isPaused = false;
+    ball.active = true;
 
-  game.start();
+    startBtn.disabled = true;
+    pauseBtn.disabled = false;
+    resetBtn.disabled = false;
+
+    game.start();
+  });
+
+  // PAUSE / RESUME
+  pauseBtn.addEventListener("click", () => {
+    game.isPaused = !game.isPaused;
+    ball.active = !game.isPaused;
+    pauseBtn.textContent = game.isPaused ? "▶ Resume" : "⏸ Pause";
+  });
+
+  // RESET
+  resetBtn.addEventListener("click", () => {
+    game.isPaused = true;
+    ball.active = false;
+
+    // Clear keys
+    ["a", "d", " ", "j", "l", "i"].forEach(k => game.keys[k] = false);
+
+    // Reset positions
+    p1.x = centerX; p1.y = P1_Y;
+    p2.x = centerX; p2.y = P2_Y;
+    ball.reset(canvas.width / 2, canvas.height / 2);
+
+    pauseBtn.textContent = "⏸ Pause";
+    game.draw();
+  });
 });
