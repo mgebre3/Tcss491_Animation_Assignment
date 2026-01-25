@@ -3,7 +3,7 @@ class GameEngine {
     this.entities = [];
     this.keys = {};
     this.clockTick = 0;
-    this.isPaused = true;
+    this.isPaused = false;
     this.started = false;
   }
 
@@ -54,44 +54,32 @@ class GameEngine {
     const H = ctx.canvas.height;
     const margin = 30;
 
-    /* ---------- TENNIS COURT ---------- */
-
     // Outer background (dark green)
     ctx.fillStyle = "#2e7d32";
     ctx.fillRect(0, 0, W, H);
 
     // Court area (lighter green)
     ctx.fillStyle = "#4caf50";
-    ctx.fillRect(
-      margin,
-      margin,
-      W - margin * 2,
-      H - margin * 2
-    );
+    ctx.fillRect(margin, margin, W - margin * 2, H - margin * 2);
 
     // Court border
     ctx.strokeStyle = "#ffffff";
     ctx.lineWidth = 3;
-    ctx.strokeRect(
-      margin,
-      margin,
-      W - margin * 2,
-      H - margin * 2
-    );
+    ctx.strokeRect(margin, margin, W - margin * 2, H - margin * 2);
 
-    // Net line (center)
+    // Center line (net line)
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(margin, H / 2);
     ctx.lineTo(W - margin, H / 2);
     ctx.stroke();
 
-    // Center mark
+    // Center circle
     ctx.beginPath();
     ctx.arc(W / 2, H / 2, 14, 0, Math.PI * 2);
     ctx.stroke();
 
-    /* ---------- ENTITIES ---------- */
+    // Draw entities (player)
     for (const e of this.entities) e.draw(ctx);
   }
 }
